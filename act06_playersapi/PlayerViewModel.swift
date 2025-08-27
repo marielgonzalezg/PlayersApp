@@ -61,10 +61,17 @@ class PlayerViewModel: ObservableObject {
             // Task was cancelled (e.g., pull-to-refresh), ignore it
             return
         } catch {
-            self.errorMessage = "Failed to load players: \(error.localizedDescription)"
+            if let urlError = error as? URLError, urlError.code == .notConnectedToInternet {
+                self.errorMessage = "No internet connection. Please check your connection."
+            } else if error is DecodingError {
+                self.errorMessage = "Failed to parse player data. Please try again later."
+            } else {
+                self.errorMessage = "Unexpected error: \(error.localizedDescription)"
+            }
         }
 
         isLoading = false
     }
+
 
 }
